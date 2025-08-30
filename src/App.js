@@ -24,12 +24,10 @@ export default function App() {
         <Header />
 
         <Routes>
-          {/* Landing: login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Zaštićene rute */}
           <Route
             path="/dashboard"
             element={
@@ -87,7 +85,6 @@ export default function App() {
             }
           />
 
-          {/* fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
 
