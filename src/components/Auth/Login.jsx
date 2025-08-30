@@ -1,70 +1,62 @@
-// src/components/auth/Login.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { loginUser } from '../../firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const mapErr = (e) => {
+    const code = e?.code || '';
+    if (code.includes('user-not-found')) return 'Nalog ne postoji.';
+    if (code.includes('wrong-password')) return 'Pogrešna lozinka.';
+    if (code.includes('invalid-email')) return 'Neispravan email.';
+    return 'Greška pri prijavi. Pokušajte ponovo.';
+  };
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setErr('');
     setLoading(true);
     try {
-      // loginUser bi trebalo da vrati userCredential iz Firebase-a
       await loginUser(email, password);
-      setSuccess('Uspešno ste se prijavili!');
-      // Ako ti je Dashboard na root ruti:
-      navigate('/', { replace: true });
-    } catch (err) {
-      setError(mapFirebaseError(err));
+      navigate('/dashboard', { replace: true }); // posle login-a vodi na Dashboard
+    } catch (e) {
+      setErr(mapErr(e));
     } finally {
       setLoading(false);
     }
   };
 
-  const mapFirebaseError = (err) => {
-    const code = err?.code || '';
-    switch (code) {
-      case 'auth/user-not-found':
-        return 'Nije pronađen korisnik sa ovom email adresom.';
-      case 'auth/wrong-password':
-        return 'Pogrešna lozinka. Pokušajte ponovo.';
-      case 'auth/invalid-email':
-        return 'Neispravan format email adrese.';
-      case 'auth/too-many-requests':
-        return 'Previše pokušaja. Pokušajte kasnije.';
-      default:
-        return 'Došlo je do greške. Pokušajte ponovo.';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-blue-50/50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg ring-1 ring-black/5">
-        <h2 className="mb-6 text-center text-2xl font-semibold text-gray-800">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-black/5">
+        <h1 className="text-center text-2xl font-semibold text-gray-900">
           Prijava
-        </h2>
+        </h1>
+        <p className="mt-1 text-center text-sm text-gray-600">
+          Nemate nalog?{' '}
+          <Link to="/register" className="text-blue-600 underline">
+            Registrujte se
+          </Link>
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
               type="email"
-              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+              placeholder="you@example.com"
               autoComplete="email"
+              required
             />
           </div>
 
@@ -74,30 +66,25 @@ export default function Login() {
             </label>
             <input
               type="password"
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+              placeholder="••••••••"
               autoComplete="current-password"
+              required
             />
           </div>
 
-          {error && (
+          {err && (
             <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">
-              {success}
+              {err}
             </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow hover:bg-blue-700 disabled:opacity-70"
           >
             {loading ? 'Prijavljivanje…' : 'Prijavi se'}
           </button>

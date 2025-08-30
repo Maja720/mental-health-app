@@ -1,41 +1,98 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+
+import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Login from './components/auth/Login';
+
 import Dashboard from './components/dashboard/Dashboard';
 import Journal from './components/journal/Journal';
 import Mood from './components/mood/Mood';
 import Counselors from './components/counselors/Counselors';
 import Groups from './components/groups/Groups';
-
-function Placeholder({ title }) {
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
-      <p className="mt-2 text-gray-600">
-        Stranica je u izradi. Vraćanje na{' '}
-        <a href="/" className="text-blue-600 underline">
-          Dashboard
-        </a>
-        .
-      </p>
-    </div>
-  );
-}
+import Profile from './components/profile/Profile';
+import Support from './components/support/Support';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Header />
+    <AuthProvider>
+      <BrowserRouter>
+        {/* Header možeš sakriti na login/register ako želiš */}
+        <Header />
 
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/journal" element={<Journal />} />
-        <Route path="/mood" element={<Mood />} />
-        <Route path="/counselors" element={<Counselors />} />
-        <Route path="/groups" element={<Groups />} />
-      </Routes>
+        <Routes>
+          {/* Landing: login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-      <Footer />
-    </BrowserRouter>
+          {/* Zaštićene rute */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/journal"
+            element={
+              <ProtectedRoute>
+                <Journal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mood"
+            element={
+              <ProtectedRoute>
+                <Mood />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/counselors"
+            element={
+              <ProtectedRoute>
+                <Counselors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <ProtectedRoute>
+                <Groups />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <Support />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+
+        <Footer />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
