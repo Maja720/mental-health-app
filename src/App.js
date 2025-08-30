@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import Dashboard from './components/dashboard/Dashboard';
+import Journal from './components/journal/Journal';
+import Mood from './components/mood/Mood';
+import Counselors from './components/counselors/Counselors';
+import Groups from './components/groups/Groups';
 
-function App() {
+function Placeholder({ title }) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
+    <div className="mx-auto max-w-6xl px-4 py-10">
+      <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
+      <p className="mt-2 text-gray-600">
+        Stranica je u izradi. Vraćanje na{' '}
+        <a href="/" className="text-blue-600 underline">
+          Dashboard
         </a>
-      </header>
+        .
+      </p>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Header />
+
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/journal" element={<Journal />} />
+        <Route path="/mood" element={<Mood />} />
+        <Route path="/counselors" element={<Counselors />} />
+        <Route path="/groups" element={<Groups />} />
+      </Routes>
+
+      <Footer />
+    </BrowserRouter>
+  );
+}
