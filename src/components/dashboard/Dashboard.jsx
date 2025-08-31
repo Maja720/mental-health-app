@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import TileCard from '../ui/TileCard';
+import TileCard from './TileCard';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase/firebaseConfig';
 import { collection, query, orderBy, limit, where } from 'firebase/firestore';

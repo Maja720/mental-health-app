@@ -1,9 +1,4 @@
-export default function TileCard({
-  title,
-  icon,
-  tone = 'blue', // 'blue' | 'pink'
-  children,
-}) {
+export default function TileCard({ title, icon, tone = 'blue', children }) {
   const toneMap = {
     blue: 'bg-blue-100',
     pink: 'bg-pink-100',
