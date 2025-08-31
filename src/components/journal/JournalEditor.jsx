@@ -1,17 +1,18 @@
 import { useState } from 'react';
 
-export default function JournalEditor({ onSave }) {
+export default function JournalEditor({ onSave, saving: savingProp }) {
   const [text, setText] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [savingLocal, setSavingLocal] = useState(false);
+  const saving = savingProp ?? savingLocal;
 
   const handleSave = async () => {
     if (!text.trim()) return;
-    setSaving(true);
+    setSavingLocal(true);
     try {
       await onSave?.(text.trim());
       setText('');
     } finally {
-      setSaving(false);
+      setSavingLocal(false);
     }
   };
 
@@ -22,7 +23,6 @@ export default function JournalEditor({ onSave }) {
       </h2>
 
       <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-black/5">
-        {/* ikonica olovke */}
         <div className="mb-2 flex items-center gap-2 text-gray-700">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,6 @@ export default function JournalEditor({ onSave }) {
           disabled={saving || !text.trim()}
           className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 font-medium text-gray-800 shadow-md ring-1 ring-black/10 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {/* čekir ikon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 text-gray-700"

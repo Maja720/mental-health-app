@@ -1,8 +1,25 @@
-export default function JournalCard({ date, text }) {
+import { useEffect, useRef, useState } from 'react';
+
+const CARD_HEIGHT = 'h-40';
+
+export default function JournalCard({ date, text, onOpen }) {
+  const textRef = useRef(null);
+  const [overflowing, setOverflowing] = useState(false);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+    const t = setTimeout(() => {
+      setOverflowing(el.scrollHeight > el.clientHeight + 2);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [text]);
+
   return (
-    <div className="rounded-xl bg-white p-4 shadow-md ring-1 ring-black/5">
+    <div
+      className={`rounded-xl bg-white p-4 shadow-md ring-1 ring-black/5 hover:shadow-lg transition-shadow ${CARD_HEIGHT} flex flex-col`}
+    >
       <div className="mb-2 flex items-center justify-between">
-        {/* ikonica kalendara */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5 text-gray-700"
@@ -19,7 +36,19 @@ export default function JournalCard({ date, text }) {
         </svg>
         <span className="text-sm font-semibold text-gray-700">{date}</span>
       </div>
-      <p className="mt-1 line-clamp-4 text-sm text-gray-600">“{text}”</p>
+
+      <div ref={textRef} className="flex-1 overflow-hidden">
+        <p className="text-sm text-gray-600 break-words">“{text}”</p>
+      </div>
+
+      {overflowing && (
+        <button
+          onClick={onOpen}
+          className="mt-2 text-xs text-blue-600 hover:underline self-start"
+        >
+          Prikaži više
+        </button>
+      )}
     </div>
   );
 }
