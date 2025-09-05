@@ -1,27 +1,49 @@
 import { useState } from 'react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase/firebaseConfig';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SupportForm() {
+  const { user } = useAuth();
+  const uid = user?.uid ?? null;
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('');
   const [sent, setSent] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
 
   const valid =
     name.trim() && /^\S+@\S+\.\S+$/.test(email) && msg.trim().length >= 10;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!valid) return;
+    if (!valid || saving) return;
 
-    // TODO: pošalji na backend / Firestore / email service
-    // npr. addDoc(collection(db,'support'), { name, email, msg, createdAt: Date.now() })
-    await new Promise((r) => setTimeout(r, 600)); // demo delay
+    setSaving(true);
+    setErr('');
+    try {
+      await addDoc(collection(db, 'supportTickets'), {
+        userId: uid || null,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        message: msg.trim(),
+        status: 'open',
+        createdAt: serverTimestamp(),
+      });
 
-    setSent(true);
-    setName('');
-    setEmail('');
-    setMsg('');
-    setTimeout(() => setSent(false), 2500);
+      setSent(true);
+      setName('');
+      setEmail('');
+      setMsg('');
+      setTimeout(() => setSent(false), 2500);
+    } catch (e) {
+      console.error(e);
+      setErr('Greška pri slanju poruke.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -65,17 +87,21 @@ export default function SupportForm() {
             rows={5}
             value={msg}
             onChange={(e) => setMsg(e.target.value)}
-            placeholder="Opisite svoj problem ili pitanje..."
+            placeholder="Opišite svoj problem ili pitanje..."
             className="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
+        {err && (
+          <p className="text-center text-sm font-medium text-red-600">{err}</p>
+        )}
+
         <button
           type="submit"
-          disabled={!valid}
+          disabled={!valid || saving}
           className="w-full rounded-xl bg-blue-600 px-4 py-2 font-medium text-white shadow hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Pošalji
+          {saving ? 'Šaljem…' : 'Pošalji'}
         </button>
 
         {sent && (
