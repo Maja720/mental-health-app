@@ -1,4 +1,15 @@
 import { useMemo, useState } from 'react';
+import {
+  addDoc,
+  collection,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../../firebase/firebaseConfig';
+import { useAuth } from '../../contexts/AuthContext';
+import { useQueryRT } from '../../hooks/useQuery';
+
 import MoodScale from './MoodScale';
 import MoodChart from './MoodChart';
 
@@ -11,59 +22,76 @@ const fmt = (d = new Date()) =>
     })
     .replace(/\./g, '.');
 
-const seed = [
-  { date: '21.07.2025.', mood: 2.4, alt: 1.9 },
-  { date: '23.07.2025.', mood: 1.1, alt: 1.2 },
-  { date: '25.07.2025.', mood: 1.5, alt: 1.3 },
-  { date: '04.08.2025.', mood: 2.7, alt: 3.0 },
-  { date: '07.08.2025.', mood: 3.9, alt: 0.8 },
-  { date: '10.08.2025.', mood: 1.2, alt: 3.4 },
-  { date: '15.08.2025.', mood: 2.2, alt: 3.8 },
-  { date: '20.08.2025.', mood: 0.0, alt: 2.3 },
-  { date: '24.08.2025.', mood: 2.3, alt: 3.9 },
-  { date: '26.08.2025.', mood: 0.5, alt: 0.8 },
-];
-
 export default function Mood() {
+  const { user } = useAuth();
+  const uid = user?.uid ?? null;
+
   const [value, setValue] = useState(7);
   const [note, setNote] = useState('');
-  const [data, setData] = useState(seed);
+  const [saving, setSaving] = useState(false);
 
-  const canSave = value >= 1 && value <= 10;
+  const canSave = value >= 1 && value <= 10 && !!uid;
 
-  const handleSave = () => {
-    const today = fmt(new Date());
-    // alt: jednostavan “trend” – prosečna vrednost poslednja 3 unosa (demo)
-    const last3 = data.slice(-3);
-    const alt =
-      last3.length > 0
-        ? Math.min(
-            10,
-            Math.max(
-              0,
-              last3.reduce((s, d) => s + (Number(d.mood) || 0), 0) /
-                last3.length
-            )
-          )
-        : value;
+  const listQ = useMemo(() => {
+    if (!uid) return null;
+    return query(
+      collection(db, 'users', uid, 'moodEntries'),
+      orderBy('createdAt', 'asc')
+    );
+  }, [uid]);
 
-    const next = [...data, { date: today, mood: Number(value), alt }];
-    setData(next);
-    setNote('');
+  const { docs: rows = [], loading, error } = useQueryRT(listQ);
+
+  const chartData = useMemo(() => {
+    const base = rows
+      .map((r) => {
+        const ts = r.createdAt;
+        const dt = ts?.toDate ? ts.toDate() : ts || null;
+        return {
+          dateStr: dt ? fmt(dt) : '',
+          mood: Number(r.mood) || 0,
+        };
+      })
+      .filter((x) => x.dateStr);
+
+    const out = [];
+    for (let i = 0; i < base.length; i++) {
+      const last3 = base.slice(Math.max(0, i - 2), i + 1);
+      const avg =
+        last3.reduce((s, it) => s + (Number(it.mood) || 0), 0) / last3.length;
+      out.push({
+        date: base[i].dateStr,
+        mood: Math.max(0, Math.min(10, base[i].mood)),
+        alt: Math.max(0, Math.min(10, Number(avg.toFixed(2)))),
+      });
+    }
+    return out;
+  }, [rows]);
+
+  const handleSave = async () => {
+    if (!canSave) return;
+    setSaving(true);
+    try {
+      await addDoc(collection(db, 'users', uid, 'moodEntries'), {
+        mood: Number(value),
+        note: (note || '').trim(),
+        createdAt: serverTimestamp(),
+      });
+      setNote('');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const header = useMemo(
-    () => (
-      <div className="text-center">
-        <p className="text-sm font-medium text-gray-700">
-          Izaberite vaše raspoloženje danas:
-        </p>
-        <div className="mt-3">
-          <MoodScale value={value} onChange={setValue} />
-        </div>
+  const header = (
+    <div className="text-center">
+      <p className="text-sm font-medium text-gray-700">
+        Izaberite vaše raspoloženje danas:
+      </p>
+      <div className="mt-3">
+        <MoodScale value={value} onChange={setValue} />
       </div>
-    ),
-    [value]
+    </div>
   );
 
   return (
@@ -71,10 +99,8 @@ export default function Mood() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         {header}
 
-        {/* beleška (zelena kutija) */}
         <div className="mx-auto mt-6 max-w-3xl rounded-2xl bg-green-100 p-4 shadow-md ring-1 ring-black/5">
           <div className="mb-2 flex items-center gap-2 text-gray-700">
-            {/* olovka */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -99,10 +125,9 @@ export default function Mood() {
           <div className="mt-3 flex justify-end">
             <button
               onClick={handleSave}
-              disabled={!canSave}
+              disabled={!canSave || saving}
               className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 font-medium text-gray-800 shadow-md ring-1 ring-black/10 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {/* čekir ikon */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 text-gray-700"
@@ -111,14 +136,19 @@ export default function Mood() {
               >
                 <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
               </svg>
-              Sačuvaj
+              {saving ? 'Čuvam…' : 'Sačuvaj'}
             </button>
           </div>
+
+          {error && (
+            <p className="mt-2 text-sm text-red-600">
+              Ne mogu da učitam podatke.
+            </p>
+          )}
         </div>
 
-        {/* grafikon */}
         <div className="mt-10">
-          <MoodChart data={data} />
+          <MoodChart data={chartData} loading={loading} />
         </div>
       </div>
     </main>

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   LineChart,
   Line,
@@ -8,9 +9,16 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-export default function MoodChart({ data }) {
+function MoodChart({ data = [], loading }) {
   return (
     <div className="mx-auto w-full max-w-5xl rounded-2xl bg-white p-4 shadow-lg ring-1 ring-black/5">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-base font-semibold text-gray-800">
+          Raspoloženje kroz vreme
+        </h3>
+        {loading && <span className="text-xs text-gray-500">Učitavam…</span>}
+      </div>
+
       <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -21,21 +29,21 @@ export default function MoodChart({ data }) {
             <XAxis dataKey="date" interval="preserveStartEnd" />
             <YAxis allowDecimals={false} domain={[0, 10]} />
             <Tooltip />
-            {/* Plava linija (npr. prethodni skor / energija) */}
             <Line
               type="monotone"
               dataKey="alt"
               strokeWidth={2}
               dot
               activeDot={{ r: 5 }}
+              isAnimationActive={true}
             />
-            {/* Zelena linija (trnutni skor) */}
             <Line
               type="monotone"
               dataKey="mood"
               strokeWidth={2}
               dot
               activeDot={{ r: 5 }}
+              isAnimationActive={true}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -43,3 +51,5 @@ export default function MoodChart({ data }) {
     </div>
   );
 }
+
+export default React.memo(MoodChart);
