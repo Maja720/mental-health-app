@@ -3,7 +3,7 @@ import SupportForm from './SupportForm';
 
 export default function Support() {
   return (
-    <main className=" bg-blue-50/50">
+    <main className=" bg-blue-50/50 mt-10">
       <div className="mx-auto max-w-6xl gap-8 px-4 py-6 lg:flex">
         <div className="flex-1">
           <FAQList />
