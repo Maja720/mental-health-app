@@ -137,8 +137,8 @@ export default function Profile() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-blue-50/50">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+    <main className=" bg-blue-50/50">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="rounded-3xl bg-white/80 p-8 shadow-xl ring-1 ring-black/5">
           <div className="mb-8 flex items-center gap-3">
             <svg

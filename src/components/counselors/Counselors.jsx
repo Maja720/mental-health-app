@@ -68,8 +68,8 @@ export default function Counselors() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-blue-50/50 relative">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+    <main className=" bg-blue-50/50 relative">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <div className="flex items-center gap-3">
           <div className="relative w-full">
             <input
@@ -90,7 +90,7 @@ export default function Counselors() {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {loading &&
             Array.from({ length: 6 }).map((_, i) => (
               <div

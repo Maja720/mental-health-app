@@ -20,75 +20,76 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* Header možeš sakriti na login/register ako želiš */}
-        <Header />
+        <div className="flex min-h-screen flex-col bg-blue-50/50">
+          <Header />
 
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/journal"
-            element={
-              <ProtectedRoute>
-                <Journal />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mood"
-            element={
-              <ProtectedRoute>
-                <Mood />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/counselors"
-            element={
-              <ProtectedRoute>
-                <Counselors />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/groups"
-            element={
-              <ProtectedRoute>
-                <Groups />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/support"
-            element={
-              <ProtectedRoute>
-                <Support />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/journal"
+              element={
+                <ProtectedRoute>
+                  <Journal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mood"
+              element={
+                <ProtectedRoute>
+                  <Mood />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/counselors"
+              element={
+                <ProtectedRoute>
+                  <Counselors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/groups"
+              element={
+                <ProtectedRoute>
+                  <Groups />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/support"
+              element={
+                <ProtectedRoute>
+                  <Support />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
 
-        <Footer />
+          <Footer />
+        </div>
       </BrowserRouter>
     </AuthProvider>
   );

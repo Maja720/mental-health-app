@@ -153,8 +153,8 @@ export default function Journal() {
   const nextDisabled = idx >= pages.length - 1 && !hasMore;
 
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-blue-50/50">
-      <div className="mx-auto max-w-6xl gap-8 px-4 py-10 lg:flex">
+    <main className=" bg-blue-50/50">
+      <div className="mx-auto max-w-6xl gap-8 px-4 py-6 lg:flex">
         <div className="flex-1">
           <div className="rounded-2xl bg-blue-100 p-6 shadow-lg ring-1 ring-black/5">
             <div className="mb-5 flex items-center gap-3">
@@ -187,7 +187,7 @@ export default function Journal() {
           </div>
         </div>
 
-        <div className="mt-8 w-full max-w-xl lg:mt-0">
+        <div className="mt-6 w-full max-w-xl lg:mt-0">
           <JournalEditor onSave={handleSave} saving={saving} />
         </div>
       </div>

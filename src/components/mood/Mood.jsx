@@ -95,8 +95,8 @@ export default function Mood() {
   );
 
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-blue-50/50">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+    <main className=" bg-blue-50/50">
+      <div className="mx-auto max-w-6xl px-4 py-6">
         {header}
 
         <div className="mx-auto mt-6 max-w-3xl rounded-2xl bg-green-100 p-4 shadow-md ring-1 ring-black/5">
@@ -147,7 +147,7 @@ export default function Mood() {
           )}
         </div>
 
-        <div className="mt-10">
+        <div className="mt-6">
           <MoodChart data={chartData} loading={loading} />
         </div>
       </div>
