@@ -1,70 +1,76 @@
-import { useMemo, useState } from 'react';
-import GroupCard from './GroupCard';
+import { useMemo, useState, useCallback } from 'react';
+import {
+  collection,
+  orderBy,
+  query,
+  updateDoc,
+  doc,
+  arrayUnion,
+  setDoc,
+} from 'firebase/firestore';
+import { db } from '../../firebase/firebaseConfig';
+import { useAuth } from '../../contexts/AuthContext';
+import { useQueryRT } from '../../hooks/useQuery';
 
-const seed = [
-  {
-    id: 'g1',
-    name: 'Podrška osobama sa anksioznošću',
-    members: 154,
-    desc: 'Siguran prostor za deljenje iskustava i saveta u borbi sa izazovima anksioznosti.',
-  },
-  {
-    id: 'g2',
-    name: 'Mentalno zdravlje studenata',
-    members: 231,
-    desc: 'Mesto gde studenti dele stres, pritiske i izazove akademskog života.',
-  },
-  {
-    id: 'g3',
-    name: 'Podrška za osobe u procesu tugovanja',
-    members: 89,
-    desc: 'Zajednica koja pruža prostor za deljenje emocija i iskustava posle gubitka.',
-  },
-  {
-    id: 'g4',
-    name: 'Zajednica za depresiju i samopomoć',
-    members: 310,
-    desc: 'Otvoren razgovor o depresiji, tehnikama prevazilaženja i međusobnoj podršci.',
-  },
-  {
-    id: 'g5',
-    name: 'Podrška za roditelje dece sa mentalnim poteškoćama',
-    members: 67,
-    desc: 'Razmena iskustava i utehe među roditeljima koji se svakodnevno bore za dobrobit dece.',
-  },
-  {
-    id: 'g6',
-    name: 'Podrška za osobe sa problemima spavanja',
-    members: 125,
-    desc: 'Za one koji se bore sa nesanicom, poremećajem sna ili stresom koji utiče na odmor.',
-  },
-];
+import GroupCard from './GroupCard';
+import GroupChat from './GroupChat';
 
 export default function Groups() {
-  const [query, setQuery] = useState('');
-  const [joined, setJoined] = useState({}); // {groupId: true}
+  const { user } = useAuth();
+  const uid = user?.uid ?? null;
 
-  const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return seed;
-    return seed.filter(
-      (g) =>
-        g.name.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q)
-    );
-  }, [query]);
+  const listQ = useMemo(() => {
+    return query(collection(db, 'supportGroups'), orderBy('createdAt', 'desc'));
+  }, []);
+  const { docs: groups = [], loading } = useQueryRT(listQ);
 
-  const onJoin = (g) => {
-    // ovde posle može Firestore upis (memberships)
-    setJoined((prev) => ({ ...prev, [g.id]: true }));
-  };
+  const [queryStr, setQueryStr] = useState('');
+  const filtered = useMemo(() => {
+    const q = queryStr.trim().toLowerCase();
+    if (!q) return groups;
+    return groups.filter((g) => {
+      const name = (g.name || '').toLowerCase();
+      const desc = (g.description || '').toLowerCase();
+      return name.includes(q) || desc.includes(q);
+    });
+  }, [groups, queryStr]);
+
+  const [current, setCurrent] = useState(null);
+
+  const isJoined = useCallback(
+    (g) => (Array.isArray(g.members) && uid ? g.members.includes(uid) : false),
+    [uid]
+  );
+
+  const handleJoin = useCallback(
+    async (g) => {
+      if (!uid || !g?.id) return;
+
+      await updateDoc(doc(db, 'supportGroups', g.id), {
+        members: arrayUnion(uid),
+      });
+
+      await setDoc(
+        doc(db, 'users', uid),
+        { groupIds: arrayUnion(g.id) },
+        { merge: true }
+      );
+
+      setCurrent({ id: g.id, name: g.name || 'Grupa' });
+    },
+    [uid]
+  );
+
+  const handleOpen = useCallback((g) => {
+    if (!g?.id) return;
+    setCurrent({ id: g.id, name: g.name || 'Grupa' });
+  }, []);
 
   return (
     <main className="min-h-[calc(100vh-120px)] bg-blue-50/50">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* Heder sa ikonicom + naslov */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            {/* ikonica grupe */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-gray-800"
@@ -78,12 +84,11 @@ export default function Groups() {
             </h1>
           </div>
 
-          {/* pretraga */}
           <div className="relative w-72 max-w-[60vw]">
             <input
               type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={queryStr}
+              onChange={(e) => setQueryStr(e.target.value)}
               placeholder="Pretraži grupe..."
               className="w-full rounded-full border border-blue-200 bg-white/80 px-10 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
@@ -98,19 +103,49 @@ export default function Groups() {
           </div>
         </div>
 
-        {/* grid kartica */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((g) => (
-            <div key={g.id} className="relative">
-              <GroupCard item={g} onJoin={onJoin} />
-              {joined[g.id] && (
-                <span className="absolute right-6 top-6 rounded-full bg-green-500/90 px-3 py-0.5 text-xs font-semibold text-white shadow">
-                  Pridruženi
-                </span>
-              )}
-            </div>
-          ))}
+          {loading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-48 animate-pulse rounded-2xl bg-white/70 shadow ring-1 ring-black/5"
+              />
+            ))}
+
+          {!loading &&
+            filtered.map((g) => (
+              <div key={g.id} className="relative">
+                <GroupCard
+                  item={{
+                    id: g.id,
+                    name: g.name || 'Bez naziva',
+                    desc: g.description || '—',
+                    membersCount: Array.isArray(g.members)
+                      ? g.members.length
+                      : 0,
+                    joined: isJoined(g),
+                  }}
+                  onJoin={() => handleJoin(g)}
+                  onOpen={() => handleOpen(g)}
+                />
+                {isJoined(g) && (
+                  <span className="absolute right-6 top-6 rounded-full bg-green-500/90 px-3 py-0.5 text-xs font-semibold text-white shadow">
+                    Pridruženi
+                  </span>
+                )}
+              </div>
+            ))}
         </div>
+
+        {current && (
+          <div className="mt-10">
+            <GroupChat
+              groupId={current.id}
+              groupName={current.name}
+              canWrite={!!uid}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

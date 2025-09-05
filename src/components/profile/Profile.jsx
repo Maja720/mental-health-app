@@ -249,6 +249,38 @@ export default function Profile() {
             </p>
           )}
         </div>
+
+        <div className="mt-6 rounded-3xl bg-white/80 p-6 shadow-xl ring-1 ring-black/5">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Grupe podrške kojima pripadate
+          </h2>
+
+          {groupsLoading ? (
+            <p className="mt-2 text-sm text-gray-500">Učitavam grupe…</p>
+          ) : userGroups.length ? (
+            <ul className="mt-3 space-y-2">
+              {userGroups.map((g) => {
+                const name = g.name || 'Bez naziva';
+                const membersCount = Array.isArray(g.members)
+                  ? g.members.length
+                  : 0;
+                return (
+                  <li key={g.id} className="text-sm text-gray-700">
+                    <span className="font-medium">{name}</span>{' '}
+                    <span className="text-gray-500">
+                      — {membersCount.toLocaleString('sr-RS')}{' '}
+                      {membersCount === 1 ? 'član' : 'članova'}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-gray-500">
+              Niste član nijedne grupe.
+            </p>
+          )}
+        </div>
       </div>
     </main>
   );
