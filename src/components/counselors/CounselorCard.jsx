@@ -1,18 +1,29 @@
 export default function CounselorCard({ item, onBook }) {
+  const { name, specializations = [], description, price } = item || {};
+
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-black/5 hover:shadow-lg transition">
-      <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-      <p className="mt-1 text-sm text-gray-700">
-        <span className="font-medium">Specijalizacija:</span> {item.specialty}
+    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-black/5 transition hover:shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+
+      <div className="mt-1 text-sm text-gray-700">
+        <span className="font-medium">Specijalizacije:</span>{' '}
+        {specializations.length ? specializations.join(', ') : '—'}
+      </div>
+
+      <div className="mt-1 text-sm text-gray-700">
+        <span className="font-medium">Cena sesije:</span>{' '}
+        {price ? `${price} RSD` : '—'}
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-gray-600">
+        {description || '—'}
       </p>
-      <p className="mt-4 text-sm leading-6 text-gray-600">{item.bio}</p>
 
       <div className="mt-6 flex justify-end">
         <button
-          onClick={() => onBook(item)}
+          onClick={() => onBook?.(item)}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
         >
-          {/* check icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-4 w-4"

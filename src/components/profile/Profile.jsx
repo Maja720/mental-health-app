@@ -8,7 +8,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
 } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { useQueryRT } from '../../hooks/useQuery';
@@ -44,18 +43,21 @@ export default function Profile() {
     if (!uid) return null;
     return query(
       collection(db, 'users', uid, 'appointments'),
-      orderBy('date', 'asc'),
       where('date', '>=', nowRef.current),
-      limit(1)
+      orderBy('date', 'asc')
     );
   }, [uid]);
   const { docs: apptDocs = [], loading: apptLoading } = useQueryRT(apptQ);
 
-  const nextAppt = useMemo(() => {
-    if (!apptDocs.length) return null;
-    const a = apptDocs[0];
-    const date = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-    return { counselorName: a.counselorName ?? 'Savetnik', date };
+  const upcoming = useMemo(() => {
+    return apptDocs.map((a) => {
+      const date = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+      const counselorName =
+        a.firstName && a.lastName
+          ? `${a.firstName} ${a.lastName}`
+          : a.firstName || a.lastName || 'Savetnik';
+      return { id: a.id, date, counselorName };
+    });
   }, [apptDocs]);
 
   useEffect(() => {
@@ -214,41 +216,36 @@ export default function Profile() {
 
         <div className="mt-6 rounded-3xl bg-white/80 p-6 shadow-xl ring-1 ring-black/5">
           <h2 className="text-xl font-semibold text-gray-900">
-            Aktivne grupe podrške:
+            Predstojeći termini
           </h2>
-          <p className="mt-2 text-sm text-gray-700">
-            {groupsLoading
-              ? 'Učitavam grupe…'
-              : userGroups.length
-                ? userGroups.map((g) => g.name ?? 'Bez naziva').join(', ')
-                : 'Niste član nijedne grupe.'}
-          </p>
 
-          <div className="mt-6 h-px w-full bg-gray-200" />
-
-          <h2 className="mt-6 text-xl font-semibold text-gray-900">
-            Zakazani sastanak
-          </h2>
           {apptLoading ? (
             <p className="mt-2 text-sm text-gray-500">
               Učitavam zakazane termine…
             </p>
-          ) : nextAppt ? (
-            <p className="mt-2 text-sm text-gray-700">
-              Zakazani sastanak kod{' '}
-              <span className="font-medium">{nextAppt.counselorName}</span>{' '}
-              <span className="font-medium">
-                {nextAppt.date.toLocaleDateString()} u{' '}
-                {nextAppt.date.toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
-              .
-            </p>
+          ) : upcoming.length ? (
+            <ul className="mt-3 space-y-2">
+              {upcoming.map((a) => (
+                <li key={a.id} className="text-sm text-gray-700">
+                  Kod <span className="font-medium">{a.counselorName}</span>{' '}
+                  <span className="font-medium">
+                    {a.date.toLocaleDateString('sr-RS', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })}{' '}
+                    u{' '}
+                    {a.date.toLocaleTimeString('sr-RS', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="mt-2 text-sm text-gray-500">
-              Trenutno nemate zakazan sledeći sastanak.
+              Trenutno nemate predstojećih termina.
             </p>
           )}
         </div>
