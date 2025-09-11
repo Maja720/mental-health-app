@@ -129,7 +129,7 @@ export default function Groups() {
                   onOpen={() => handleOpen(g)}
                 />
                 {isJoined(g) && (
-                  <span className="absolute right-6 top-6 rounded-full bg-green-500/90 px-3 py-0.5 text-xs font-semibold text-white shadow">
+                  <span className="absolute right-6 top-6 rounded-md bg-green-500/90 px-1 py-1 text-xs font-semibold text-white shadow">
                     Pridruženi
                   </span>
                 )}
