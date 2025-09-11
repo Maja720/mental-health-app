@@ -97,7 +97,7 @@ export default function Dashboard() {
             <div className="text-sm text-gray-600">Učitavam…</div>
           ) : currentMood ? (
             <div className="flex flex-col items-center justify-center space-y-2">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-3xl font-semibold text-blue-900 shadow">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-sky-50 text-3xl font-semibold text-blue-900 shadow">
                 {currentMood.mood ?? '–'}
               </div>
               {currentMood.createdAt && (
@@ -122,7 +122,7 @@ export default function Dashboard() {
             <div className="text-sm text-gray-600">Učitavam…</div>
           ) : previousMood ? (
             <div className="flex flex-col items-center justify-center space-y-2">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-3xl font-semibold text-blue-900 shadow">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-sky-50 text-3xl font-semibold text-blue-900 shadow">
                 {previousMood.mood ?? '–'}
               </div>
               {previousMood.createdAt && (
