@@ -33,9 +33,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // 2) Ako korisnik nije prijavljen → preusmeri na login
   if (!user) return <Navigate to="/login" replace />;
 
-  // 3) Ako je prijavljen → prikaži decu (zaštićenu stranicu)
   return children;
 }

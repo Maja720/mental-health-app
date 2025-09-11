@@ -65,7 +65,7 @@ export default function Dashboard() {
     : null;
 
   return (
-    <main className="flex min-h-[calc(100vh-250px)] items-center justify-center bg-blue-50/50">
+    <main className="flex min-h-[calc(100vh-150px)] items-center justify-center bg-blue-50/50">
       <div className="grid w-full max-w-4xl grid-cols-1 gap-8 md:grid-cols-2 auto-rows-fr">
         <TileCard title="Poslednji unos u dnevnik" icon="✍️" tone="pink">
           {journalLoading ? (

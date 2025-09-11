@@ -5,26 +5,6 @@ export default function Footer() {
         <p className="text-center md:text-left">
           © {new Date().getFullYear()} Mental Health App. Sva prava zadržana.
         </p>
-        <div className="flex items-center gap-6">
-          <a
-            href="#privacy"
-            className="transition hover:text-white underline-offset-4 hover:underline"
-          >
-            Privatnost
-          </a>
-          <a
-            href="#terms"
-            className="transition hover:text-white underline-offset-4 hover:underline"
-          >
-            Uslovi korišćenja
-          </a>
-          <a
-            href="#contact"
-            className="transition hover:text-white underline-offset-4 hover:underline"
-          >
-            Kontakt
-          </a>
-        </div>
       </div>
     </footer>
   );

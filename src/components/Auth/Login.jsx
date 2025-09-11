@@ -32,8 +32,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50/50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-black/5">
+    <div className=" bg-blue-50/50 flex items-center justify-center p-4">
+      <div className="w-full mt-11 max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-black/5">
         <h1 className="text-center text-2xl font-semibold text-gray-900">
           Prijava
         </h1>

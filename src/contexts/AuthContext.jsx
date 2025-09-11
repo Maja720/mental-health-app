@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig'; // prilagodi putanju
+import { auth } from '../firebase/firebaseConfig';
 
 const AuthContext = createContext(null);
 
