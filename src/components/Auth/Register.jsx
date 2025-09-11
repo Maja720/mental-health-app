@@ -1,4 +1,3 @@
-// src/components/auth/Register.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../../firebase/auth';
@@ -6,22 +5,19 @@ import { auth, db } from '../../firebase/firebaseConfig';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function Register() {
-  // obavezna polja
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
 
-  // opciona polja
   const [psych, setPsych] = useState(''); // psihički simptomi
   const [phys, setPhys] = useState(''); // fizički simptomi
-  const [diag, setDiag] = useState(''); // dijagnoza
+  const [diag, setDiag] = useState('');
 
-  // UX
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
-  const [agree, setAgree] = useState(true); // npr. saglasnost sa uslovima
+  const [agree, setAgree] = useState(true);
 
   const [err, setErr] = useState('');
   const [ok, setOk] = useState('');
@@ -37,7 +33,7 @@ export default function Register() {
       setErr('Unesite važeću email adresu.');
       return false;
     }
-    // primer jače validacije lozinke (min 6, bar 1 slovo i 1 broj)
+
     const strong = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
     if (!strong.test(password)) {
       setErr('Lozinka mora imati bar 6 karaktera i bar 1 slovo i 1 broj.');
@@ -62,21 +58,27 @@ export default function Register() {
 
     setLoading(true);
     try {
-      // 1) Firebase Auth – kreiraj korisnika
       const cred = await registerUser(email, password);
 
-      // 2) Firestore – sačuvaj profil (opciona polja su ok da budu prazna)
       const uid = cred.user.uid;
+
+      const toArray = (s) =>
+        s
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean);
+
       await setDoc(
-        doc(db, 'profiles', uid),
+        doc(db, 'users', uid),
         {
+          uid,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
-          psych: psych.trim(),
-          phys: phys.trim(),
-          diag: diag.trim(),
-          notify: true, // podrazumevano
+          psychSymptoms: toArray(psych),
+          physSymptoms: toArray(phys),
+          diagnosis: diag.trim(),
+          notify: true,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
@@ -110,7 +112,6 @@ export default function Register() {
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-5">
-          {/* 2 kolone na većim ekranima */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -155,7 +156,6 @@ export default function Register() {
             />
           </div>
 
-          {/* Lozinka + Potvrda sa show/hide */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="relative">
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -202,7 +202,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Opciono – zdravstvena polja */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -243,7 +242,6 @@ export default function Register() {
             />
           </div>
 
-          {/* saglasnost */}
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input
               type="checkbox"
@@ -254,7 +252,6 @@ export default function Register() {
             Prihvatam uslove korišćenja i politiku privatnosti.
           </label>
 
-          {/* poruke */}
           {err && (
             <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
               {err}

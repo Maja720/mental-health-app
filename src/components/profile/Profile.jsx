@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ProfileField from './ProfileField';
 import { db } from '../../firebase/firebaseConfig';
+import { serverTimestamp } from 'firebase/firestore';
 import {
   collection,
   doc,
@@ -122,7 +123,7 @@ export default function Profile() {
           psychSymptoms: psychArr,
           physSymptoms: physArr,
           diagnosis: diag.trim(),
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
