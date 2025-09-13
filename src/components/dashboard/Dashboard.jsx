@@ -145,7 +145,7 @@ export default function Dashboard() {
             <div className="space-y-1 rounded-xl bg-white/60 p-4 text-gray-700 shadow-sm">
               <p className="text-sm text-gray-600">Sastanak sa:</p>
               <p className="font-medium">
-                {nextAppt.counselorName ?? 'Savetnik'}
+                {`${nextAppt.firstName ?? ''} ${nextAppt.lastName ?? ''}`}
               </p>
               <p className="text-sm text-gray-600">
                 {fmtFromTS({ toDate: () => nextAppt._date })}
